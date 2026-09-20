@@ -4,9 +4,6 @@
 
 بدون رزرو، پرداخت، یا دستیار هوش مصنوعی.
 
-<p align="right">
-  <img src="frontend/public/logo.png" alt="WanderPath" width="72" />
-</p>
 
 | | |
 | --- | --- |
