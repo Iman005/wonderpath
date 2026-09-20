@@ -1,0 +1,11 @@
+node_modules/
+.next/
+out/
+.env
+.env.local
+next-env.d.ts
+.venv/
+venv/
+
+# Vendored from node_modules by scripts/copy-rtl-plugin.mjs on predev/prebuild.
+public/mapbox-gl-rtl-text.min.js

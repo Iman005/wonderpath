@@ -1,0 +1,42 @@
+# Secrets — keep .env.example files, never real keys
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+*.egg-info/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+
+# SQLite / local data
+*.db
+*.db-shm
+*.db-wal
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+
+# Local scratch
+Untitled-1.py
+cd backend.txt
+
+# Netlify CLI
+.netlify
+
+# Vendored by frontend/scripts/copy-rtl-plugin.mjs
+frontend/public/mapbox-gl-rtl-text.min.js

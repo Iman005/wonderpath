@@ -1,0 +1,28 @@
+# fly.toml app file generated for WanderPath API
+app = "wanderpath-api-emen"
+primary_region = "ams"
+
+[build]
+
+[env]
+  ENV = "production"
+  PORT = "8080"
+  DATABASE_URL = "sqlite:////data/wanderpath.db"
+  ALLOW_DEV_LOGIN = "true"
+  CORS_ORIGINS = "http://localhost:3000,http://127.0.0.1:3000"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+
+[mounts]
+  source = "wanderpath_data"
+  destination = "/data"

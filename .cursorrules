@@ -1,0 +1,166 @@
+# WanderPath — Project Context for AI Assistance
+
+## What this is
+
+WanderPath is a trip planner & local guide for **domestic travel inside
+Iran** (e.g. Tehran → Shiraz, Mashhad → Yazd). **Google sign-in**
+(accounts) replaces anonymous-only use for the main app; phone/SMS OTP is
+**deferred** until an Iranian SMS provider is chosen (Kavenegar, Ghasedak,
+MeliPayamak, etc.). No booking/payments, no AI assistant, no
+reviews/ratings. Full RTL, Persian-first UI.
+
+Read `docs/architecture-spec.md` first — it is the source of truth for
+scope, module boundaries, and the API contract. Do not deviate from it
+without discussing the tradeoff first (the spec's anonymous-auth section
+is outdated; this file reflects the codebase).
+
+## Routes (frontend)
+
+- `/` — marketing landing page (Server Component hero + feature cards).
+- `/login` — Google sign-in (`@react-oauth/google` → `POST /auth/google`).
+- `/app` — trip list + create trip (auth required via `AuthGuard`).
+- `/trip/[id]/*` — trip editor, summary (map), budget (auth required).
+
+## Stack
+
+- **Backend**: Python 3.12, FastAPI, SQLAlchemy 2.0, Alembic, Pydantic
+  v2, SQLite (dev) / PostgreSQL (prod)
+- **Frontend**: Next.js 14 (App Router), TypeScript, React 18, plain
+  CSS (no Tailwind/UI framework) — custom design system in
+  `app/globals.css`
+
+## Backend architecture — follow this strictly
+
+Every module under `backend/app/modules/<name>/` follows:
+
+```
+Controller (router.py)  →  Service (service.py)  →  Repository (repository.py)
+```
+
+- **Repositories** (`repository.py`): pure DB access via SQLAlchemy.
+  No business rules. No HTTP concerns.
+- **Services** (`service.py`): all business logic and validation lives
+  here. Ownership checks, domain rules, orchestration. Raises typed
+  exceptions from `app/shared/exceptions.py` (`NotFoundError`,
+  `OwnershipError`, `ValidationDomainError`, `ExternalProviderError`,
+  `UnauthorizedError`) — never raises `HTTPException` directly.
+- **Routers** (`router.py`): HTTP layer only. Parses request →
+  calls service → returns response. No business logic.
+- **DTOs** (`dtos.py`): Pydantic request/response schemas per module.
+- **`dependencies.py`**: FastAPI DI wiring (composition root) for that
+  module.
+
+External integrations (Neshan APIs) are abstracted behind interfaces
+so the provider can be swapped without touching domain code:
+
+- `app/modules/destination/interfaces.py` → `IPlaceDataProvider`
+- `app/modules/map/interfaces.py` → `IMapProvider`
+- `app/modules/identity/interfaces.py` → `IIdentityResolver`
+- Concrete implementations live in `app/infrastructure/providers/`
+
+Caching policy (city/place data fetched from Neshan, persisted to the
+DB, refreshed on staleness) lives in
+`app/infrastructure/cache/place_cache_sync.py` — this is
+infrastructure, not a service concern.
+
+Driving distance/duration for destination search uses
+`app/infrastructure/cache/route_distance_cache.py` (wraps
+`IMapProvider.get_route`, keyed by rounded lat/lng, TTL in config).
+
+Global exception handling is in `app/main.py`: `NotFoundError` → 404,
+`OwnershipError` → 403, `UnauthorizedError` → 401,
+`ValidationDomainError` → 422, `ExternalProviderError` → 503.
+
+### Identity & ownership
+
+- **`User` table** + **`app/modules/auth/`** — Google ID token verified
+  server-side (`google-auth`); session JWT (`PyJWT`, `JWT_SECRET`).
+- **`JwtIdentityResolver`** — reads `Authorization: Bearer <token>`,
+  resolves to `User.id`.
+- **`DeviceIdentityResolver`** — still present as **guest fallback**
+  (`X-Device-Id` header) for legacy clients/tests during transition.
+- **`get_current_device_id`** (in `identity/dependencies.py`): **JWT
+  preferred** when Bearer present; otherwise device id. Comment in that
+  file is authoritative.
+- Trips still store **`owner_device_id`** (string) — now holds the
+  authenticated user id for new trips. Column rename is deferred.
+- **Anonymous trips are NOT migrated** to accounts in the current pass.
+
+### Distance fields (Destination API)
+
+- `GET /cities?q=...&trip_id=...` → optional
+  `distance_from_origin_km` per city (haversine via `app/shared/geo.py`)
+  when the trip has origin coordinates.
+- `GET /cities/{id}/places?trip_id=...` → optional
+  `distance_from_origin_km` + `duration_from_origin_minutes` per place
+  (cached routing via `RouteDistanceCache`).
+
+## Frontend architecture — follow this strictly
+
+- `services/` — one thin wrapper per backend module (auth, destination,
+  trip, budget, map, summary). All HTTP calls go through
+  `services/apiClient.ts`, which sends `Authorization: Bearer` when a
+  session token exists (`hooks/useAccessToken.ts`); falls back to
+  `X-Device-Id` only when unauthenticated (guest/legacy).
+- `hooks/useAccessToken.ts` — stores JWT from Google login.
+- `hooks/useDeviceId.ts` — legacy guest device UUID (fallback only).
+- `components/AuthGuard.tsx` — redirects `/app` and `/trip/*` to
+  `/login` when no token.
+- `modules/trip/localTrips.ts` — backend has **no** "list my trips"
+  endpoint; frontend tracks trip ids in localStorage per browser.
+- `modules/trip/placeCache.ts` — client-side cache of `Place` objects.
+- `shared/types.ts` — TypeScript types mirroring backend DTOs.
+- `shared/mapStyle.ts` — patches map styles for Persian labels; hides
+  unreliable third-party place labels; trip pins show `pin.name` in UI.
+  Two constraints the patch must keep: never emit `layout: undefined`
+  (MapLibre validates the style object and refuses to render), and only
+  rewrite `text-field` when it already reads a *name* — road shields read
+  `ref` into a fixed-size icon and clip a long Persian name.
+- Persian map labels need the RTL text plugin, or MapLibre draws them
+  unshaped and reversed. It is vendored into `public/` by
+  `scripts/copy-rtl-plugin.mjs` (runs on `predev`/`prebuild`) and enabled
+  in `components/TripRouteMap.tsx`; self-hosted because CDNs are
+  unreliable from Iran.
+- `i18n/fa.ts` — all user-facing strings, not inline in components.
+- `shared/format.ts` — Persian digits, Toman, distance/duration helpers.
+
+## Design system
+
+- Palette: deep indigo (`--ink-night`) for the header/hero band, warm
+  parchment (`--paper`) for content, Persian-tile turquoise
+  (`--turquoise`) as the primary interactive color, caravanserai
+  terracotta (`--terracotta`) reserved for money/budget/warnings only.
+- Type: Vazirmatn for all Persian text; **Space Mono only for
+  numerals** (prices, counts, distances) — never mix.
+- The itinerary's signature visual is the "route stitch" (`.route-
+  stitch` / `.stop-marker` in `globals.css`) — preserve when editing
+  `DayColumn.tsx`.
+- Don't introduce Tailwind or a component library — extend
+  `app/globals.css` with existing token variables.
+
+## Current status / known gaps
+
+- Backend: **87 tests** passing (`cd backend && pytest`).
+- Frontend: builds cleanly (`npm run build`).
+- **`GOOGLE_CLIENT_ID`** / **`JWT_SECRET`** must be set for auth
+  (`backend/.env`, `frontend/.env.local` — see `.env.example` files).
+- **`NESHAN_API_KEY`** in `backend/.env` (service key). Direction returns HTTP **485** if that key’s service list does not include routing — provider then cools down and uses OSRM so the summary map does not stall. Map tiles still need a separate Neshan **web** key as `NEXT_PUBLIC_NESHAN_API_KEY` (optional; otherwise OpenFreeMap).
+- Seed data covers major Iranian cities for demo without Neshan.
+- Phone/SMS auth: **not implemented** — architecture ready via
+  `IIdentityResolver`; pick provider later.
+- Old anonymous trips (device-id ownership) are **not auto-linked** to
+  new Google accounts.
+
+## Working conventions
+
+- Keep the Controller → Service → Repository split even for small
+  features — don't shortcut business logic into a router.
+- New business rules raise domain exceptions from
+  `app/shared/exceptions.py`, not `HTTPException`.
+- Any new backend module needs: `dtos.py`, `repository.py` (if DB),
+  `service.py`, `dependencies.py`, `router.py`, registration in
+  `app/main.py`.
+- Any new frontend API call goes through a `services/*.ts` wrapper,
+  typed against `shared/types.ts`.
+- Write/update tests alongside backend changes (`backend/tests/`).
+- Persian strings go in `i18n/fa.ts`, not inline.

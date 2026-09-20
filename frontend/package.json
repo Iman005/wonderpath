@@ -1,0 +1,28 @@
+{
+  "name": "wanderpath-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "copy-rtl-plugin": "node scripts/copy-rtl-plugin.mjs",
+    "predev": "npm run copy-rtl-plugin",
+    "dev": "next dev",
+    "prebuild": "npm run copy-rtl-plugin",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@mapbox/mapbox-gl-rtl-text": "0.2.3",
+    "@react-oauth/google": "^0.12.1",
+    "maplibre-gl": "^4.7.1",
+    "next": "14.2.35",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "20.14.10",
+    "@types/react": "18.3.11",
+    "@types/react-dom": "18.3.1",
+    "typescript": "5.6.3"
+  }
+}
