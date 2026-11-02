@@ -194,6 +194,16 @@ npm run dev
 Open `/login` and use **ورود آزمایشی** (dev login). Google OAuth and Neshan keys are optional for a local demo.
 
 WanderPath is an Iran-only trip planner (RTL Persian UI). No bookings or payments.
+
+## 🤖 ابزارهای هوش مصنوعی استفاده‌شده
+
+این پروژه با کمک ابزارهای هوش مصنوعی ساخته شده:
+
+- **Claude** و **ChatGPT**: برای ساخت کانتکست پروژه
+- **Cursor**: برای ساخت دمو
+
+
+اسکرین شات های مربوط به صفحات پروژه :
 <img width="1817" height="874" alt="Screenshot 2026-11-02 105334" src="https://github.com/user-attachments/assets/9d4162ea-61d9-4d9f-b691-ff05a4eecbb6" />
 <img width="1817" height="934" alt="Screenshot 2026-11-02 105316" src="https://github.com/user-attachments/assets/f9f96545-93db-49a4-9020-f1b3b4019737" />
 <img width="1805" height="912" alt="Screenshot 2026-11-02 105248" src="https://github.com/user-attachments/assets/6baf1f7f-7deb-4d24-b0ee-f646c2c28f7a" />
