@@ -194,3 +194,16 @@ npm run dev
 Open `/login` and use **ورود آزمایشی** (dev login). Google OAuth and Neshan keys are optional for a local demo.
 
 WanderPath is an Iran-only trip planner (RTL Persian UI). No bookings or payments.
+<img width="1817" height="874" alt="Screenshot 2026-11-02 105334" src="https://github.com/user-attachments/assets/9d4162ea-61d9-4d9f-b691-ff05a4eecbb6" />
+<img width="1817" height="934" alt="Screenshot 2026-11-02 105316" src="https://github.com/user-attachments/assets/f9f96545-93db-49a4-9020-f1b3b4019737" />
+<img width="1805" height="912" alt="Screenshot 2026-11-02 105248" src="https://github.com/user-attachments/assets/6baf1f7f-7deb-4d24-b0ee-f646c2c28f7a" />
+<img width="1648" height="741" alt="Screenshot 2026-11-02 105153" src="https://github.com/user-attachments/assets/28d9cfbb-f782-4419-8935-ced45649764c" />
+<img width="1570" height="891" alt="Screenshot 2026-11-02 105127" src="https://github.com/user-attachments/assets/7e3a2ac2-9406-46a1-8bdf-c06aaabea154" />
+<img width="1795" height="905" alt="Screenshot 2026-11-02 105033" src="https://github.com/user-attachments/assets/ab96e3ca-fddd-4639-af1a-723d97cbcf98" />
+<img width="1238" height="899" alt="Screenshot 2026-11-02 104953" src="https://github.com/user-attachments/assets/55676ab3-f803-49a1-a169-bc164ed92341" />
+<img width="758" height="450" alt="Screenshot 2026-11-02 105705" src="https://github.com/user-attachments/assets/af9dac67-a199-49ae-8821-97f2c656d214" />
+<img width="768" height="491" alt="Screenshot 2026-11-02 105630" src="https://github.com/user-attachments/assets/d579d905-72ea-4b09-bb9c-7806e224df7f" />
+<img width="1152" height="746" alt="Screenshot 2026-11-02 105606" src="https://github.com/user-attachments/assets/b5d23021-0b22-47b0-a70c-4bdf9b87311b" />
+<img width="1396" height="873" alt="Screenshot 2026-11-02 105550" src="https://github.com/user-attachments/assets/687e60b1-0f74-4496-8304-92a3bfaa0474" />
+<img width="1606" height="843" alt="Screenshot 2026-11-02 105521" src="https://github.com/user-attachments/assets/6cc5c3ef-a1b9-49a4-853b-fc1c6b97555f" />
+<img width="1361" height="861" alt="Screenshot 2026-11-02 105359" src="https://github.com/user-attachments/assets/374dd4cc-3f3f-460d-a4e9-5ca3e6ec9770" />
